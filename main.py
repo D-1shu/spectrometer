@@ -4,10 +4,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def arr_plot(arr):
+def arr_plot(arr, pause, text):
     plt.plot(arr)
-    plt.show()
-    time.sleep(2)
+    text = text + ".png"
+    plt.savefig(text)
+    plt.show(block=False)
+    plt.pause(pause)
     plt.close()
 
 
@@ -96,21 +98,17 @@ class spectrometer:
     def raman_arr_calc(self):
         # dark spectrum
         self.dark_spec_acq()
-        arr_plot(self.darkspectrum)
-
-        time.sleep(2)
+        arr_plot(self.darkspectrum,0.250, 'darkspectrum')
 
         # pixel values
         self.spec_acq()
-        arr_plot(self.raman_arr)
 
         self.raman_arr = np.array(self.raman_arr)
         self.darkspectrum = np.array(self.darkspectrum)
 
         # corrected pixel values
         self.raman_arr = self.raman_arr - self.darkspectrum
-        arr_plot(self.raman_arr)
-
+        arr_plot(self.raman_arr, 0.250, 'raman_spectrum')
 
     def set_integration_time(self, integration_time=21):
         if 21 <= integration_time <= 65000:  # BTC110 range
@@ -176,20 +174,44 @@ class spectrometer:
     def cont_plot(self, t=100):
         fig = plt.figure()
         t *= 5
+        self.raman_arr_calc()
         for p in range(t):
             plt.plot(self.raman_arr)
             plt.draw()
             self.spec_acq()
             plt.pause(0.2)
             fig.clear()
+        fig.clf()
+
+    def save_val(self, text):
+        text = text + ".png"
+        plt.plot(self.raman_arr)
+        plt.savefig(text)
+        f = open(text + ".dat", "x")
+        for item in self.raman_arr:
+            f.write("%s\n" % item)
 
 
 if __name__ == "__main__":
     test = spectrometer()
     test.spec_init()
     test.spec_mode()
+    user = 1
+    user = int(input("mode: "))
+    if user == 1:
+        val = int(input("choice: "))
+        if val == 1:
+            test.raman_arr_calc()
+        elif val == 2:
+            test.cont_plot()
+            ask = int(input("Save spectrum: "))
+            if ask == 1:
+                test.save_val('continous_spectrum')
 
-    test.raman_arr_calc()
-    test.cont_plot()  # 100 sec
+    elif user == 2:
+        t = int(input("time: "))
+        avg_num = int(input("average number: "))
+        test.set_integration_time(t)
+        test.set_avg_num(avg_num)
 
 # test git pull
