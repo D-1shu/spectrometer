@@ -214,4 +214,3 @@ if __name__ == "__main__":
         test.set_integration_time(t)
         test.set_avg_num(avg_num)
 
-# test git pull
