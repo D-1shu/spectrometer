@@ -6,7 +6,9 @@ import matplotlib.pyplot as plt
 
 def arr_plot(arr):
     plt.plot(arr)
-    plt.draw()
+    plt.show()
+    time.sleep(2)
+    plt.close()
 
 
 class spectrometer:
@@ -109,6 +111,7 @@ class spectrometer:
         self.raman_arr = self.raman_arr - self.darkspectrum
         arr_plot(self.raman_arr)
 
+
     def set_integration_time(self, integration_time=21):
         if 21 <= integration_time <= 65000:  # BTC110 range
             self.integration_time = integration_time
@@ -170,21 +173,23 @@ class spectrometer:
             time.sleep(0.025)
             self.port.flushInput()
 
-    """def cont_plot(self):
+    def cont_plot(self, t=100):
         fig = plt.figure()
-        for p in range(100):
+        t *= 5
+        for p in range(t):
             plt.plot(self.raman_arr)
             plt.draw()
             self.spec_acq()
             plt.pause(0.2)
-            fig.clear()"""
+            fig.clear()
 
 
 if __name__ == "__main__":
     test = spectrometer()
     test.spec_init()
     test.spec_mode()
-    test.raman_arr_calc()
 
+    test.raman_arr_calc()
+    test.cont_plot()  # 100 sec
 
 # test git pull
