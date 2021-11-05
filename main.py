@@ -4,16 +4,21 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
+def arr_plot(arr):
+    plt.plot(arr)
+    plt.draw()
+
+
 class spectrometer:
     baud_rate = {0: 115200, 1: 38400, 2: 19200, 3: 9600, 4: 4800, 5: 2400, 6: 1200, 7: 600}
 
     def __init__(self, port='/dev/ttyUSB0'):
         self.port = serial.Serial(port, 9600)
         self.data_mode = 'a'  # b (binary) is default
-        self.raman_arr = np.array([])
+        self.raman_arr = []
         self.avg_num = 1  # 1 is default
         self.integration_time = 21  # 21 is default
-        self.darkspectrum = np.array([])
+        self.darkspectrum = []
         self.baud = 3  # 3 is default
         self.delay = 35  # 35 is default
 
@@ -67,7 +72,7 @@ class spectrometer:
                 in_spec = self.port.readline()  # reading from spectrometer , its in bytes and has \r\n
                 in_spec = in_spec[:-2]  # removing \r\n
                 in_spec = int(in_spec.decode("utf-8"))  # converting to string
-                np.append(self.raman_arr, in_spec)
+                self.raman_arr.append(in_spec)  # adding to the array
             time.sleep(0.025)
             self.port.flushInput()
         elif self.data_mode == 'b':
@@ -81,20 +86,28 @@ class spectrometer:
             for p in range(0, 2048):
                 in_spec = self.port.readline()  # reading from spectrometer , its in bytes and has \r\n
                 in_spec = in_spec[:-2]  # removing \r\n
-                in_spec = int(in_spec.decode("utf-8"))  # decoding and typecast to int
-                np.append(self.darkspectrum, in_spec)  # adding to the array
+                in_spec = int(in_spec.decode("utf-8"))  # converting to string
+                self.darkspectrum.append(in_spec)  # adding to the array
             time.sleep(0.025)
             self.port.flushInput()
 
     def raman_arr_calc(self):
+        # dark spectrum
         self.dark_spec_acq()
-        self.arr_plot(self.darkspectrum)
-        time.sleep(5)
+        arr_plot(self.darkspectrum)
+
+        time.sleep(2)
+
+        # pixel values
         self.spec_acq()
+        arr_plot(self.raman_arr)
+
+        self.raman_arr = np.array(self.raman_arr)
+        self.darkspectrum = np.array(self.darkspectrum)
+
+        # corrected pixel values
         self.raman_arr = self.raman_arr - self.darkspectrum
-        self.arr_plot(self.raman_arr)
-    # temp=self.port.read()
-    # print(res)
+        arr_plot(self.raman_arr)
 
     def set_integration_time(self, integration_time=21):
         if 21 <= integration_time <= 65000:  # BTC110 range
@@ -156,10 +169,6 @@ class spectrometer:
             self.port.write(B"T " + str(self.integration_time) + "\r\n")
             time.sleep(0.025)
             self.port.flushInput()
-
-    def arr_plot(self, arr):
-        plt.plot(arr)
-        plt.draw()
 
     """def cont_plot(self):
         fig = plt.figure()
