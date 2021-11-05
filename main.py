@@ -58,19 +58,8 @@ class spectrometer:
     def decompress(self):
         pass
 
-    def spec_acq(self):
+    def __spec_acq(self):
         if self.data_mode == 'a':
-            self.port.write(b"S\r\n")
-            time.sleep(0.025)
-            self.port.flushInput()
-            for p in range(0, 2048):
-                in_spec = self.port.readline()  # reading from spectrometer , its in bytes and has \r\n
-                in_spec = in_spec[:-2]  # removing \r\n
-                in_spec = int(in_spec.decode("utf-8"))  # decoding and typecast to int
-                np.append(self.darkspectrum, in_spec)  # adding to the array
-            time.sleep(1.000)
-
-            self.port.flushInput()
             self.port.write(b"S\r\n")
             time.sleep(0.025)
             self.port.flushInput()
@@ -79,12 +68,31 @@ class spectrometer:
                 in_spec = in_spec[:-2]  # removing \r\n
                 in_spec = int(in_spec.decode("utf-8"))  # converting to string
                 np.append(self.raman_arr, in_spec)
-            self.raman_arr = self.raman_arr - self.darkspectrum
             time.sleep(0.025)
             self.port.flushInput()
         elif self.data_mode == 'b':
             pass
 
+    def __dark_spec_acq(self):
+        if self.data_mode == 'b':
+            self.port.write(b"S\r\n")
+            time.sleep(0.025)
+            self.port.flushInput()
+            for p in range(0, 2048):
+                in_spec = self.port.readline()  # reading from spectrometer , its in bytes and has \r\n
+                in_spec = in_spec[:-2]  # removing \r\n
+                in_spec = int(in_spec.decode("utf-8"))  # decoding and typecast to int
+                np.append(self.darkspectrum, in_spec)  # adding to the array
+            time.sleep(0.025)
+            self.port.flushInput()
+
+    def raman_arr_calc(self):
+        self.__dark_spec_acq()
+        self.arr_plot(self.darkspectrum)
+        time.sleep(5)
+        self.__spec_acq()
+        self.raman_arr = self.raman_arr - self.darkspectrum
+        self.arr_plot(self.raman_arr)
     # temp=self.port.read()
     # print(res)
 
@@ -149,8 +157,8 @@ class spectrometer:
             time.sleep(0.025)
             self.port.flushInput()
 
-    def raman_plot(self):
-        plt.plot(self.raman_arr)
+    def arr_plot(self, arr):
+        plt.plot(arr)
         plt.draw()
 
     def cont_plot(self):
@@ -167,11 +175,7 @@ if __name__ == "__main__":
     test = spectrometer()
     test.spec_init()
     test.spec_mode()
-    ask = int(input("mode: "))
-    if ask == 1:
-        test.raman_plot()
-    elif ask == 2:
-        test.cont_plot()
+    test.raman_arr_calc()
 
 
 # test git pull
