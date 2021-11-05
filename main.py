@@ -58,7 +58,7 @@ class spectrometer:
     def decompress(self):
         pass
 
-    def __spec_acq(self):
+    def spec_acq(self):
         if self.data_mode == 'a':
             self.port.write(b"S\r\n")
             time.sleep(0.025)
@@ -73,8 +73,8 @@ class spectrometer:
         elif self.data_mode == 'b':
             pass
 
-    def __dark_spec_acq(self):
-        if self.data_mode == 'b':
+    def dark_spec_acq(self):
+        if self.data_mode == 'a':
             self.port.write(b"S\r\n")
             time.sleep(0.025)
             self.port.flushInput()
@@ -87,10 +87,10 @@ class spectrometer:
             self.port.flushInput()
 
     def raman_arr_calc(self):
-        self.__dark_spec_acq()
+        self.dark_spec_acq()
         self.arr_plot(self.darkspectrum)
         time.sleep(5)
-        self.__spec_acq()
+        self.spec_acq()
         self.raman_arr = self.raman_arr - self.darkspectrum
         self.arr_plot(self.raman_arr)
     # temp=self.port.read()
@@ -161,14 +161,14 @@ class spectrometer:
         plt.plot(arr)
         plt.draw()
 
-    def cont_plot(self):
+    """def cont_plot(self):
         fig = plt.figure()
         for p in range(100):
             plt.plot(self.raman_arr)
             plt.draw()
             self.spec_acq()
             plt.pause(0.2)
-            fig.clear()
+            fig.clear()"""
 
 
 if __name__ == "__main__":
