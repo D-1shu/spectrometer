@@ -187,6 +187,7 @@ class spectrometer:
         text = text + ".png"
         plt.plot(self.raman_arr)
         plt.savefig(text)
+        plt.close()
         f = open(text + ".dat", "x")
         for item in self.raman_arr:
             f.write("%s\n" % item)
