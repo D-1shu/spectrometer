@@ -4,11 +4,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def arr_plot(arr, pause, text):
+def arr_plot(arr, pause, text, bool_f=True):
     plt.plot(arr)
     text = text + ".png"
     plt.savefig(text)
-    plt.show(block=False)
+    plt.show(block=bool_f)
     plt.pause(pause)
     plt.close()
 
@@ -98,7 +98,7 @@ class spectrometer:
     def raman_arr_calc(self):
         # dark spectrum
         self.dark_spec_acq()
-        arr_plot(self.darkspectrum,0.250, 'darkspectrum')
+        arr_plot(self.darkspectrum, 0.250, 'darkspectrum')
 
         # pixel values
         self.spec_acq()
@@ -197,21 +197,20 @@ if __name__ == "__main__":
     test = spectrometer()
     test.spec_init()
     test.spec_mode()
-    user = 1
-    user = int(input("mode: "))
-    if user == 1:
-        val = int(input("choice: "))
-        if val == 1:
-            test.raman_arr_calc()
-        elif val == 2:
+    t = int(input("time: "))
+    data_mode = input("datamode : (b/a)")
+    avg_num = int(input("average number: "))
+    baud = int(input("baud: (0-7)"))
+    delay = int(input("set delay: "))
+    test.set_integration_time(t)
+    test.set_avg_num(avg_num)
+    test.spec_mode(data_mode)
+    test.set_baud(baud)
+    test.time_delay(delay)
+    plot_mode = int(input("single(1) or continuous(2): "))
+    if plot_mode == 1:
+        test.raman_arr_calc()
+    elif plot_mode == 2:
+        test.cont_plot()
+        if input("save plot (0/1)") == 1:
             test.cont_plot()
-            ask = int(input("Save spectrum: "))
-            if ask == 1:
-                test.save_val('continous_spectrum')
-
-    elif user == 2:
-        t = int(input("time: "))
-        avg_num = int(input("average number: "))
-        test.set_integration_time(t)
-        test.set_avg_num(avg_num)
-
