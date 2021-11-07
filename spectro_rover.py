@@ -11,8 +11,6 @@ class spectrometer:
         self.avg_num = 1  # 1 is default
         self.acquisition_time = 100  # 100 is default
         self.baud = 3  # 3 is default
-        self.noisy_arr = []
-        self.dark_arr = []
 
     def spec_init(self):
         self.port.write(b"Q\r\n")
@@ -40,6 +38,7 @@ class spectrometer:
         self.port.flushInput()
 
     def capture_noisy(self):
+        spectrum = []
         if self.data_mode == "a":
             self.port.write(b"S\r\n")
             time.sleep(0.025)
@@ -48,17 +47,17 @@ class spectrometer:
                 in_spec = self.port.readline()  # reading from spectrometer , its in bytes and has \r\n
                 in_spec = in_spec[:-2]  # removing \r\n
                 in_spec = int(in_spec.decode("utf-8"))  # converting to string
-                self.noisy_arr.append(in_spec)  # adding to the array
+                spectrum.append(in_spec)  # adding to the array
             time.sleep(0.025)
             self.port.flushInput()
-        elif self.data_mode == "b":
-            pass
+        return spectrum
 
     def capture_dark(self):
         """
         call function to turn off laser
         :return:
         """
+        spectrum = []
         if self.data_mode == "a":
             self.port.write(b"S\r\n")
             time.sleep(0.025)
@@ -67,12 +66,13 @@ class spectrometer:
                 in_spec = self.port.readline()  # reading from spectrometer , its in bytes and has \r\n
                 in_spec = in_spec[:-2]  # removing \r\n
                 in_spec = int(in_spec.decode("utf-8"))  # converting to string
-                self.dark_arr.append(in_spec)  # adding to the array
+                spectrum.append(in_spec)  # adding to the array
             time.sleep(0.025)
             self.port.flushInput()
         """
         call function to turn on laser
         """
+        return spectrum
 
     def set_acquisition_time(self, acquisition_time=100):
         if 21 <= acquisition_time <= 65000:  # BTC110 range

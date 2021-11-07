@@ -97,8 +97,7 @@ class gui:
         to fetch the dark spectrum values as a list.
         """
         # self.dark_spectrum = capture_dark()
-        self.rover.capture_dark()
-        self.dark_spectrum = self.rover.dark_arr
+        self.dark_spectrum = self.rover.capture_dark()
 
     def fetch_noisy_spectrum(self):
         """
@@ -106,8 +105,7 @@ class gui:
         to fetch the noisy(raw) spectrum values as a list.
         """
         # self.noisy_spectrum = capture_noisy()
-        self.rover.capture_noisy()
-        self.noisy_spectrum = self.rover.noisy_arr
+        self.noisy_spectrum = self.rover.capture_noisy()
 
     def remove_noise(self):
         """
