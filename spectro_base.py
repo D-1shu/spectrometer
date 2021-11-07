@@ -123,12 +123,7 @@ class gui:
         # call spec_init() from avinash.py
         # call function in avinash.py to set settings
         self.rover.spec_init()
-        self.rover.capture_noisy()
-
         while True:
-            # print("Taking spectrum")
-            time.sleep(1)
-
             if self.parameters["acq_mode"] == "single":
 
                 self.fetch_dark_spectrum()
