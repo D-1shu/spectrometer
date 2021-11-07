@@ -151,7 +151,7 @@ def user_menu(obj):
         User menu that takes input from user and drives program execution
     """
     # flag to prevent spawning another "Start" thread. False means no "Start" thread exists.
-    start = False
+    start_status = False
 
     while True:
 
@@ -160,15 +160,15 @@ def user_menu(obj):
         if program_command == "Set" or program_command == "set":
             obj.set_parameters()
 
-        elif ((program_command == "Start" or program_command == "start") and start is False):
-            start = True
+        elif ((program_command == "Start" or program_command == "start_status") and start_status is False):
+            start_status = True
             acquisition_thread = threading.Thread(target=obj.start_acq)
             acquisition_thread.setDaemon(True)
             acquisition_thread.start()
 
         elif program_command == "End" or program_command == "end":
             print("Ending spectrum acquisition")
-            start = False
+            start_status = False
             break
 
         else:
