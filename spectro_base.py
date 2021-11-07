@@ -167,7 +167,7 @@ def user_menu(obj):
         if program_command == "Set" or program_command == "set":
             obj.set_parameters()
 
-        elif (program_command == "Start" or program_command == "start") and start is False:
+        elif ((program_command == "Start" or program_command == "start") and start is False):
             start = True
             acquisition_thread = threading.Thread(target=obj.start_acq)
             acquisition_thread.setDaemon(True)
