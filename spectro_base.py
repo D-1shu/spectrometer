@@ -47,8 +47,8 @@ class gui:
         self.parameters["averages"] = input("Enter average param: ")
         self.parameters["acq_time"] = input("Enter acquisition time: ")
         self.parameters["baud_rate"] = input("Enter baud rate: ")
-        self.parameters["data_mode"] = input("Enter data mode: ")
-        self.parameters["acq_mode"] = input("Enter single/ continuous: ")
+        self.parameters["data_mode"] = raw_input("Enter data mode: ")
+        self.parameters["acq_mode"] = raw_input("Enter single/ continuous: ")
 
         # Setting parameters to the rover
         self.rover.spec_mode(self.parameters.get("data_mode"))
@@ -146,6 +146,8 @@ class gui:
                 self.plot_single(self.dark_spectrum)
                 self.save_as_dat(self.dark_spectrum)
 
+                self.cont_plot()
+
             else:
                 print("[ERROR]: Incorrect value for acq_mode")
 
@@ -159,7 +161,7 @@ def user_menu(obj):
 
     while True:
 
-        program_command = input("\nEnter Command.....")
+        program_command = raw_input("\nEnter Command.....")
 
         if program_command == "Set" or program_command == "set":
             obj.set_parameters()
