@@ -43,19 +43,12 @@ class gui:
             print("{} = {}".format(key, value) + " ")
 
     def set_parameters(self):
-
-        print("Enter space separated list of parameters")
-
-        # taking input list of spectrometer parameters
-        a = [x for x in input().split()]
-
-        # updating object parameters dictionary
-        i = 0
-        for key in self.parameters.keys():
-            if i > len(a):
-                break
-            self.parameters[key] = a[i]
-            i = i + 1
+        print("Enter parameters: (avg, acq time, baud rate, data mode, acq mode)")
+        self.parameters["averages"] = input("Enter average param: ")
+        self.parameters["acq_time"] = input("Enter acquisition time: ")
+        self.parameters["baud_rate"] = input("Enter baud rate: ")
+        self.parameters["data_mode"] = input("Enter data mode: ")
+        self.parameters["acq_mode"] = input("Enter single/ continuous: ")
 
         # Setting parameters to the rover
         self.rover.spec_mode(self.parameters.get("data_mode"))
@@ -77,6 +70,17 @@ class gui:
         elif spectrum == self.dark_spectrum:
             plt.savefig("dark_spectrum.png")
         plt.close()
+
+    def cont_plot(self):
+        fig = plt.figure()
+
+        for _ in range(100):
+            self.fetch_noisy_spectrum()
+            x = np.array(self.noisy_spectrum) - np.array(self.dark_spectrum)
+            plt.plot(x)
+            plt.draw()
+            plt.pause(0.25)
+            fig.clear()
 
     def save_as_dat(self, spectrum):
         """

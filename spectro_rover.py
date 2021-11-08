@@ -94,3 +94,7 @@ class spectrometer:
             self.port.write(b"C " + str(val) + coeff + "\r\n")
         time.sleep(0.025)
         self.port.flushInput()
+
+
+if __name__ == "__main__":
+    pass
