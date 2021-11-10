@@ -18,7 +18,6 @@ issues specification
 !!!!! binary mode should be added
 """
 import threading
-import time
 
 import numpy as np
 
@@ -116,7 +115,7 @@ class gui:
             Subtracts dark spectrum from noisy spectrum
         """
         noisy = np.array(self.noisy_spectrum)
-        dark = np.array(self.noisy_spectrum)
+        dark = np.array(self.dark_spectrum)
         self.clean_spectrum = noisy - dark
 
     def start_acq(self):
@@ -127,6 +126,7 @@ class gui:
         # call spec_init() from avinash.py
         # call function in avinash.py to set settings
         self.rover.spec_init()
+        self.rover.spec_mode(self.parameters.get("data_mode"))
         while True:
             if self.parameters["acq_mode"] == "single":
 
