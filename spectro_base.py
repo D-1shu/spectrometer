@@ -18,6 +18,7 @@ issues specification
 !!!!! binary mode should be added
 """
 import threading
+import time
 
 import numpy as np
 
@@ -65,16 +66,19 @@ class gui:
         plt.plot(spectrum)
         plt.show()
         if spectrum == self.clean_spectrum:
-            plt.savefig("clean_speactrum.png")
+            plt.title("clean spectrum")
+            plt.savefig("clean_spectrum.png")
         elif spectrum == self.dark_spectrum:
+            plt.title("dark spectrum")
             plt.savefig("dark_spectrum.png")
         plt.close()
 
     def cont_plot(self):
         fig = plt.figure()
-
+        plt.title("Clean Continuous")
         for _ in range(100):
             self.fetch_noisy_spectrum()
+            time.sleep(0.025)
             x = np.array(self.noisy_spectrum) - np.array(self.dark_spectrum)
             plt.plot(x)
             plt.draw()
@@ -149,7 +153,8 @@ class gui:
                 self.cont_plot()
 
             else:
-                print("[ERROR]: Incorrect value for acq_mode")
+                print("[ERROR]: Incorrect value for acq_mode: ")
+                self.parameters["acq_mode"] = input()
 
 
 def user_menu(obj):
