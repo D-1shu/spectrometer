@@ -77,11 +77,12 @@ class gui:
     def cont_plot(self):
         fig = plt.figure()
         plt.title("Clean Continuous")
-        x = np.zeros(2048)
         for _ in range(100):
+            x = np.zeros(2048)
             self.fetch_noisy_spectrum()
             time.sleep(0.025)
             x = np.array(self.noisy_spectrum) - np.array(self.dark_spectrum)
+            self.noisy_spectrum = np.zeros(2048)
             plt.plot(x)
             plt.xlim(0)
             plt.draw()
