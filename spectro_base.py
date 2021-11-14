@@ -64,6 +64,7 @@ class gui:
             Plots the spectrum and saves it as .png
         """
         plt.plot(spectrum)
+        plt.xlim(0)
         plt.show()
         if spectrum == self.clean_spectrum:
             plt.title("clean spectrum")
@@ -76,11 +77,13 @@ class gui:
     def cont_plot(self):
         fig = plt.figure()
         plt.title("Clean Continuous")
+        x = np.zeros(2048)
         for _ in range(100):
             self.fetch_noisy_spectrum()
             time.sleep(0.025)
             x = np.array(self.noisy_spectrum) - np.array(self.dark_spectrum)
             plt.plot(x)
+            plt.xlim(0)
             plt.draw()
             plt.pause(0.25)
             fig.clear()
