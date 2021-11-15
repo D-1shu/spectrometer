@@ -47,8 +47,8 @@ class gui:
         self.parameters["averages"] = input("Enter average param: ")
         self.parameters["acq_time"] = input("Enter acquisition time: ")
         self.parameters["baud_rate"] = input("Enter baud rate: ")
-        self.parameters["data_mode"] = raw_input("Enter data mode: ")
-        self.parameters["acq_mode"] = raw_input("Enter single/ continuous: ")
+        self.parameters["data_mode"] = raw_input("Enter data mode: ").lower()
+        self.parameters["acq_mode"] = raw_input("Enter single/ continuous: ").lower()
 
         # Setting parameters to the rover
         self.rover.spec_mode(self.parameters.get("data_mode"))
@@ -135,7 +135,7 @@ class gui:
         self.rover.spec_init()
         self.rover.spec_mode(self.parameters.get("data_mode"))
         while True:
-            if self.parameters["acq_mode"] == "single":
+            if self.parameters["acq_mode"] == "s":
 
                 self.fetch_dark_spectrum()
                 self.plot_single(self.dark_spectrum)
@@ -147,7 +147,7 @@ class gui:
                 self.plot_single(self.clean_spectrum)
                 self.save_as_dat(self.clean_spectrum)
 
-            elif self.parameters["acq_mode"] == "continuous":
+            elif self.parameters["acq_mode"] == "c":
 
                 self.fetch_dark_spectrum()
                 self.plot_single(self.dark_spectrum)
@@ -157,7 +157,7 @@ class gui:
 
             else:
                 print("[ERROR]: Incorrect value for acq_mode: ")
-                self.parameters["acq_mode"] = input()
+                self.parameters["acq_mode"] = raw_input().lower()
 
 
 def user_menu(obj):
@@ -204,7 +204,7 @@ def main():
     2) Acquisition Time: 100ms to 10s. (Enter value in ms)
     3) Baud Rate: { 115200, 38400, 19200, 9600, 4800, 2400, 1200, 600 }
     4) Data Mode: a (ASCII) or b (Binary)
-    5) Acquisition Mode: single or continuous
+    5) Acquisition Mode: s (single) or c (continuous)
     
     
     Program Commands
