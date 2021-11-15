@@ -1,3 +1,4 @@
+import numpy as np
 import serial
 import time
 
@@ -38,16 +39,16 @@ class spectrometer:
         self.port.flushInput()
 
     def capture_noisy(self):
-        spectrum = []
+        spectrum = np.zeros(2048)
         if self.data_mode == "a":
             self.port.write(b"S\r\n")
             time.sleep(0.025)
             self.port.flushInput()
-            for _ in range(2048):
+            for i in range(2048):
                 in_spec = self.port.readline()  # reading from spectrometer , its in bytes and has \r\n
                 in_spec = in_spec[:-2]  # removing \r\n
                 in_spec = int(in_spec.decode("utf-8"))  # converting to string
-                spectrum.append(in_spec)  # adding to the array
+                spectrum[i] = in_spec
             time.sleep(0.025)
             self.port.flushInput()
         return spectrum
@@ -57,16 +58,16 @@ class spectrometer:
         call function to turn off laser
         :return:
         """
-        spectrum = []
+        spectrum = np.zeros(2048)
         if self.data_mode == "a":
             self.port.write(b"S\r\n")
             time.sleep(0.025)
             self.port.flushInput()
-            for _ in range(2048):
+            for i in range(2048):
                 in_spec = self.port.readline()  # reading from spectrometer , its in bytes and has \r\n
                 in_spec = in_spec[:-2]  # removing \r\n
                 in_spec = int(in_spec.decode("utf-8"))  # converting to string
-                spectrum.append(in_spec)  # adding to the array
+                spectrum[i] = in_spec  # adding to the array
             time.sleep(0.025)
             self.port.flushInput()
         """

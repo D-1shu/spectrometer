@@ -78,11 +78,10 @@ class gui:
         fig = plt.figure()
         plt.title("Clean Continuous")
         for _ in range(100):
-            x = np.zeros(2048)
+            self.noisy_spectrum = np.zeros(2048)
             self.fetch_noisy_spectrum()
             time.sleep(0.025)
             x = np.array(self.noisy_spectrum) - np.array(self.dark_spectrum)
-            self.noisy_spectrum = np.zeros(2048)
             plt.plot(x)
             plt.xlim(0)
             plt.draw()
@@ -129,7 +128,7 @@ class gui:
     def start_acq(self):
         """
             Initialises spectrometer. Sets spectrometer settings (acq time, data mode etc).
-            Calls methods to fetches and plot spectrums
+            Calls methods to fetches and plot spectrum
         """
         # call spec_init() from avinash.py
         # call function in avinash.py to set settings
@@ -171,23 +170,25 @@ def user_menu(obj):
     while True:
 
         program_command = raw_input("\nEnter Command.....")
+        program_command = program_command.lower()
 
-        if program_command == "Set" or program_command == "set":
+        if program_command == "set":
             obj.set_parameters()
 
-        elif ((program_command == "Start" or program_command == "start_status") and start_status is False):
+        elif program_command == "start" and (start_status is False):
             start_status = True
             acquisition_thread = threading.Thread(target=obj.start_acq)
             acquisition_thread.setDaemon(True)
             acquisition_thread.start()
 
-        elif program_command == "End" or program_command == "end":
+        elif program_command == "end":
             print("Ending spectrum acquisition")
             start_status = False
             break
 
         else:
             print("[ERROR]: Incorrect command input")
+            program_command = raw_input("\nEnter Correct Command.....")
 
 
 def main():
@@ -197,7 +198,7 @@ def main():
                                 Team RoverX
     
     
-    Parameter Desciption
+    Parameter Description
     #################################################
     1) Number of averages: 1 to 100
     2) Acquisition Time: 100ms to 10s. (Enter value in ms)
