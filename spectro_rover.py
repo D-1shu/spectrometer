@@ -24,7 +24,7 @@ class spectrometer:
         time.sleep(0.025)
         self.port.flushInput()
 
-    def spec_reinitialize(self):
+    def spec_reinit(self):
         self.port.write(b"Q\r\n")
         self.port.close()
         self.port = serial.Serial('/dev/ttyUSB0', self.baud_rate.get(self.baud))
@@ -35,15 +35,15 @@ class spectrometer:
         if 0 <= val <= 7:
             self.baud = val
         self.port.write(b"K " + str(val) + "\r\n")
-        time.sleep(0.025)
-        self.port.flushInput()
+        self.spec_reinit()
 
     def capture_noisy(self):
         spectrum = np.zeros(2048)
         if self.data_mode == "a":
             self.port.write(b"S\r\n")
             time.sleep(0.025)
-            self.port.flushInput()
+            self.port.readline()
+            self.port.readline()
             for i in range(2048):
                 in_spec = self.port.readline()  # reading from spectrometer , its in bytes and has \r\n
                 in_spec = in_spec[:-2]  # removing \r\n
@@ -53,27 +53,43 @@ class spectrometer:
             self.port.flushInput()
         return spectrum
 
-    def capture_dark(self):
-        """
-        call function to turn off laser
-        :return:
-        """
-        spectrum = np.zeros(2048)
-        if self.data_mode == "a":
-            self.port.write(b"S\r\n")
-            time.sleep(0.025)
-            self.port.flushInput()
-            for i in range(2048):
-                in_spec = self.port.readline()  # reading from spectrometer , its in bytes and has \r\n
-                in_spec = in_spec[:-2]  # removing \r\n
-                in_spec = int(in_spec.decode("utf-8"))  # converting to string
-                spectrum[i] = in_spec  # adding to the array
-            time.sleep(0.025)
-            self.port.flushInput()
-        """
-        call function to turn on laser
-        """
+    def capture_binary(self):
+        spectrum = []
+        in_spec = []
+        self.port.write(b"S\r\n")
+        time.sleep(0.025)
+        self.port.readline()
+        self.port.readline()
+        while True:
+            temp = self.port.read()
+            if len(temp) == 0:
+                break
+            in_spec.append(ord(temp))
+        time.sleep(0.025)
+        i = 0
+        for _ in in_spec:
+            if i < len(in_spec):
+                if in_spec[i] == 128:
+                    spectrum.append(in_spec[i + 1] * 256 + in_spec[i + 2])
+                    i += 3
+                else:
+                    if in_spec[i] > 128:
+                        spectrum.append(spectrum[-1] + in_spec[i] - 256)
+                    else:
+                        spectrum.append(spectrum[-1] + in_spec[i])
+                    i += 1
+        time.sleep(0.025)
+        self.port.flushInput()
         return spectrum
+
+    def capture(self, mode):
+        spectrum = []
+        if mode == "a":
+            spectrum = self.capture_noisy()
+        elif mode == "b":
+            spectrum = self.capture_binary()
+        return spectrum
+
 
     def set_acquisition_time(self, acquisition_time=100):
         if 21 <= acquisition_time <= 65000:  # BTC110 range

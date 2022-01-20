@@ -32,7 +32,7 @@ class gui:
 
         # default parameter values
         self.parameters = {"averages": 1, "acq_time": 100, "baud_rate": 3, "data_mode": "a",
-                           "acq_mode": "single"}
+                           "acq_mode": "s"}
         self.rover = spectrometer()
         self.dark_spectrum = []
         self.noisy_spectrum = []
@@ -66,10 +66,10 @@ class gui:
         plt.plot(spectrum)
         plt.xlim(0)
         plt.show()
-        if spectrum == self.clean_spectrum:
+        if np.array_equiv(spectrum, self.clean_spectrum):
             plt.title("clean spectrum")
             plt.savefig("clean_spectrum.png")
-        elif spectrum == self.dark_spectrum:
+        elif np.array_equiv(spectrum, self.dark_spectrum):
             plt.title("dark spectrum")
             plt.savefig("dark_spectrum.png")
         plt.close()
@@ -165,6 +165,7 @@ def user_menu(obj):
         User menu that takes input from user and drives program execution
     """
     # flag to prevent spawning another "Start" thread. False means no "Start" thread exists.
+    flag = 0
     start_status = False
 
     while True:
@@ -188,7 +189,6 @@ def user_menu(obj):
 
         else:
             print("[ERROR]: Incorrect command input")
-            program_command = raw_input("\nEnter Correct Command.....")
 
 
 def main():
