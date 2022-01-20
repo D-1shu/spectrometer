@@ -1,11 +1,7 @@
-from lib2to3.pgen2.pgen import PgenGrammar
 import time
-import psutil
-import matplotlib.pyplot as plt
-from PyQt5 import QtCore, QtGui, QtWidgets, uic
+from PyQt5 import QtCore, QtWidgets, uic
 from PyQt5.QtWidgets import QMessageBox
-import sys
-from spectro_rover import spectrometer
+from extra.spectro_rover import spectrometer
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
 from matplotlib.figure import Figure
 import matplotlib
@@ -81,6 +77,10 @@ def stop():
     root.port.close()
 
 
+def pause():
+    call.timer.stop()
+
+
 def capture():
     msg = QMessageBox()
     msg.setWindowTitle("Capture")
@@ -112,6 +112,7 @@ call.start.clicked.connect(start)
 call.set.clicked.connect(set_val)
 call.stop.clicked.connect(stop)
 call.capture.clicked.connect(capture)
+call.pause.clicked.connect(pause)
 
 call.show()
 app.exec_()

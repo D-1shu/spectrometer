@@ -22,7 +22,7 @@ import time
 
 import numpy as np
 
-from spectro_rover import spectrometer
+from extra.spectro_rover import spectrometer
 import matplotlib.pyplot as plt
 
 
