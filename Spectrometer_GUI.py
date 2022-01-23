@@ -95,7 +95,7 @@ class GUI:
         # sc.axes.set_xlim(left=max(0, i - 10), right=i + 10)
         self.sc.fig.canvas.draw()
         time.sleep(0.1)
-
+#
 
 ui = GUI()
 ui.open()
