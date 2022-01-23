@@ -1,7 +1,7 @@
 import time
 from PyQt5 import QtCore, QtWidgets, uic
 from PyQt5.QtWidgets import QMessageBox
-from extra.spectro_rover import spectrometer
+from spectrometer_commands import spectrometer
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
 from matplotlib.figure import Figure
 import matplotlib
@@ -11,108 +11,92 @@ matplotlib.use('Qt5Agg')
 
 class MplCanvas(FigureCanvasQTAgg):
 
+    # noinspection PyUnusedLocal
     def __init__(self, parent=None, width=5, height=4, dpi=100):
         self.fig = Figure(figsize=(width, height), dpi=dpi)
         self.axes = self.fig.add_subplot(111)
         super(MplCanvas, self).__init__(self.fig)
 
 
-root = spectrometer()
-avg = 10
-sec = 0
-msec = 100
-brate = 9600
-mode = "z"
-i = 0
-spectrum = []
-x, y = [], []
+class GUI:
+
+    def __init__(self):
+
+        self.root = spectrometer()
+        self.avg = 10
+        self.sec = 0
+        self.msec = 100
+        self.brate = 9600
+        self.mode = "z"
+        self.spectrum = []
+        self.app = QtWidgets.QApplication([])
+        self.call = uic.loadUi("spectrometer1.ui")
+        self.sc = MplCanvas(self.call.centralwidget, width=5, height=4, dpi=100)
+        self.call.gridLayout.addWidget(self.sc)
+
+    def open(self):
+        self.call.show()
+        self.app.exec()
+
+    def set_val(self):
+        self.avg = int(self.call.avg.text())
+        self.sec = int(self.call.sec.currentText())
+        self.msec = int(self.call.msec.currentText())
+        self.brate = int(self.call.baud.currentText())
+        self.root.set_baud(self.brate)
+        self.root.set_avg_num(self.avg)
+        self.root.set_acquisition_time(self.sec * 1000 + self.msec)
+
+        if self.call.bin.isChecked():
+            self.mode = "b"
+            self.root.spec_mode("b")
+
+            print("Binary Mode Selected")
+
+        if self.call.ascii.isChecked():
+            self.mode = "a"
+            self.root.spec_mode("a")
+            print("Ascii Mode Selected")
+
+        # graph mode
+        if self.call.single.isChecked():
+            if self.mode == "b":
+                self.root.capture_binary()
+        if self.call.cont.isChecked():
+            print("continuous Mode Selected")
+
+    def start(self):
+        self.root.spec_init()
+        self.call.timer = QtCore.QTimer()
+        if self.call.single.isChecked():
+            self.update_plot()
+        else:
+            self.call.timer.setInterval(100)
+            self.call.timer.timeout.connect(self.update_plot)
+            self.call.timer.start()
+
+    def stop(self):
+        self.root.port.close()
+
+    def pause(self):
+        self.call.timer.stop()
+
+    def capture(self):
+        msg = QMessageBox()
+        msg.setWindowTitle("Capture")
+        msg.setText("Figure Saved Successfully")
+        msg.exec_()
+        self.sc.fig.savefig('/home/devanshu/Desktop/sprctrometer/Figures/figure.png')
+        self.sc.fig.savefig('/home/devanshu/Desktop/sprctrometer/Figures/figure.pdf')
+
+    def update_plot(self):
+        arr = self.root.capture(self.mode)
+        self.sc.axes.plot(arr, color='grey')
+        # sc.axes.set_xlim(left=max(0, i - 10), right=i + 10)
+        self.sc.fig.canvas.draw()
+        time.sleep(0.1)
 
 
-def set_val():
-    global call, mode
-    avg = int(call.avg.text())
-    sec = int(call.sec.currentText())
-    msec = int(call.msec.currentText())
-    brate = int(call.baud.currentText())
-    root.set_baud(brate)
-    root.set_avg_num(avg)
-    root.set_acquisition_time(sec * 1000 + msec)
+ui = GUI()
+ui.open()
 
-    if call.bin.isChecked():
-        mode = "b"
-        root.spec_mode("b")
-
-        print("Binary Mode Selected")
-
-    if call.ascii.isChecked():
-        mode = "a"
-        root.spec_mode("a")
-        print("Ascii Mode Selected")
-
-    # graph mode
-    if call.single.isChecked():
-        if mode == "b":
-            root.capture_binary()
-    if call.cont.isChecked():
-        print("continuous Mode Selected")
-
-    print(avg)
-    print(sec)
-    print(msec)
-    print(brate)
-
-
-def start():
-    root.spec_init()
-    call.timer = QtCore.QTimer()
-    if call.single.isChecked():
-        update_plot()
-    else:
-        call.timer.setInterval(100)
-        call.timer.timeout.connect(update_plot)
-        call.timer.start()
-
-
-def stop():
-    root.port.close()
-
-
-def pause():
-    call.timer.stop()
-
-
-def capture():
-    msg = QMessageBox()
-    msg.setWindowTitle("Capture")
-    msg.setText("Figure Saved Sucessfully")
-    x = msg.exec_()
-    sc.fig.savefig('/home/devanshu/Desktop/sprctrometer/Figures/figure.png')
-    sc.fig.savefig('/home/devanshu/Desktop/sprctrometer/Figures/figure.pdf')
-
-
-def update_plot():
-    arr = root.capture(mode)
-    global sc
-    sc.axes.plot(arr, color='grey')
-    # sc.axes.set_xlim(left=max(0, i - 10), right=i + 10)
-    sc.fig.canvas.draw()
-    time.sleep(0.1)
-
-
-app = QtWidgets.QApplication([])
-call = uic.loadUi("spectrometer1.ui")
-sc = MplCanvas(call.centralwidget, width=5, height=4, dpi=100)
-call.gridLayout.addWidget(sc)
-# call.timer = QtCore.QTimer()
-# call.timer.setInterval(100)
-# call.timer.timeout.connect(update_plot)
-# call.timer.start()
-
-call.start.clicked.connect(start)
-call.set.clicked.connect(set_val)
-call.stop.clicked.connect(stop)
-call.capture.clicked.connect(capture)
-call.pause.clicked.connect(pause)
-
-call.show()
-app.exec_()
